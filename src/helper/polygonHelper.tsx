@@ -1,14 +1,18 @@
 import { LatLngExpression } from "leaflet";
 import { v4 } from "uuid";
 import { Polygon } from "react-leaflet";
-import { GRID_SIZE, RECTANGLE_SIZE } from "../constats/map";
+import { GRID_SIZE, OFFSET, RECTANGLE_SIZE } from "../constats/map";
 import GridPolygon from "../component/GridPolygon";
 
 /**
  * Creates a grid over the given center point
  * @returns Array of leaflet polygons wrapped in GridPolygon (interactable object with own state)
  */
-export const generateGridOnCenter = (centerLat: number, centerLng: number) => {
+export const generateGridOnCenter = (
+  centerLat: number,
+  centerLng: number,
+  setLastUpdateKey: (key: string) => void
+) => {
   const rectangles = [];
   const halfDistance = (GRID_SIZE / 2) * RECTANGLE_SIZE;
   const startLat = centerLat - halfDistance;
@@ -19,16 +23,16 @@ export const generateGridOnCenter = (centerLat: number, centerLng: number) => {
       const rectangle = [
         [startLat + row * RECTANGLE_SIZE, startLng + column * RECTANGLE_SIZE],
         [
-          startLat + (row + 1) * RECTANGLE_SIZE,
+          startLat + (row + 1) * RECTANGLE_SIZE + OFFSET,
           startLng + column * RECTANGLE_SIZE,
         ],
         [
-          startLat + (row + 1) * RECTANGLE_SIZE,
-          startLng + (column + 1) * RECTANGLE_SIZE,
+          startLat + (row + 1) * RECTANGLE_SIZE + OFFSET,
+          startLng + (column + 1) * RECTANGLE_SIZE + OFFSET,
         ],
         [
           startLat + row * RECTANGLE_SIZE,
-          startLng + (column + 1) * RECTANGLE_SIZE,
+          startLng + (column + 1) * RECTANGLE_SIZE + OFFSET,
         ],
       ];
       rectangles.push(rectangle);
@@ -36,7 +40,11 @@ export const generateGridOnCenter = (centerLat: number, centerLng: number) => {
   }
 
   return rectangles.map((coords, index) => (
-    <GridPolygon key={v4()} positions={coords as LatLngExpression[]} />
+    <GridPolygon
+      key={v4()}
+      positions={coords as LatLngExpression[]}
+      setLastUpdateKey={setLastUpdateKey}
+    />
   ));
 };
 
